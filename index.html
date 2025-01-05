@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Series de Marvel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Nunito Sans', sans-serif;
+      background-color: #121212;
+      color: #f5f5f5;
+    }
+    #chart-container {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: transparent;
+      border: none;
+      color: #f5f5f5;
+    }
+    .list-group-item {
+      background-color: #2c2c2c;
+      border: 1px solid #444;
+      color: #f5f5f5;
+    }
+    .lists {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .list-card {
+      flex: 1 1 300px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <h1>Pelis de Marvel en Orden Cronológico</h1>
+    <div id="chart-container" class="mb-4">
+      <canvas id="myPieChart"></canvas>
+    </div>
+
+    <div class="lists">
+      <div class="card list-card p-3">
+        <h2>Series Vistas</h2>
+        <ul id="watched-list" class="list-group"></ul>
+      </div>
+      <div class="card list-card p-3">
+        <h2>Series No Vistas</h2>
+        <ul id="not-watched-list" class="list-group"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // JSON con series y puntuaciones
+    const series = [
+      { name: "Capitán América: El primer vengador (2011)", watched: true, score: 6 },
+      { name: "Capitana Marvel (2019)", watched: true, score: 4 },
+      { name: "Iron Man (2008)", watched: true, score: 5 },
+      { name: "El increíble Hulk (2008)", watched: true, score: 6 },
+      { name: "Iron Man 2 (2010)", watched: true, score: 6 },
+      { name: "Thor (2011)", watched: false },
+      { name: "Los Vengadores (2012)", watched: false },
+      { name: "Escena poscréditos de Los Vengadores para conocer a Thanos (2012)", watched: false },
+      { name: "Iron Man 3 (2013)", watched: false },
+      { name: "Thor: El mundo oscuro (2013)", watched: false },
+      { name: "Capitán América: El soldado de invierno (2014)", watched: false },
+      { name: "Guardianes de la Galaxia (2014)", watched: false },
+      { name: "Guardianes de la Galaxia Vol. 2 (2017)", watched: false },
+      { name: "Serie en Disney+: Yo Soy Groot*", watched: false },
+      { name: "Vengadores: La era de Ultrón (2015)", watched: false },
+      { name: "Ant-Man (2015)", watched: false },
+      { name: "Capitán América: Civil War (2016)", watched: false },
+      { name: "Viuda Negra (2021)", watched: false },
+      { name: "Black Panther (2018)", watched: false },
+      { name: "Doctor Strange (2016)", watched: false },
+      { name: "Spider-Man: Homecoming (2017)", watched: false },
+      { name: "Ant-Man y la Avispa (2018)", watched: false },
+      { name: "Thor: Ragnarok (2017)", watched: false },
+      { name: "Vengadores: Infinity War (2018)", watched: false },
+      { name: "Escena poscréditos de Ant-Man y la Avispa (2018)", watched: false },
+      { name: "Escena poscréditos de Capitana Marvel (2019)", watched: false },
+      { name: "Vengadores: Endgame (2019)", watched: false },
+      { name: "Serie en Disney+: Bruja Escarlata y Vision (2021)", watched: false },
+      { name: "Serie en Disney+: Falcon y El soldado de invierno (2021)", watched: false },
+      { name: "Spider-Man: Far from Home (2019)", watched: false },
+      { name: "Serie en Disney+: Loki (2021)", watched: false },
+      { name: "Spider-Man: No Way Home (2021)", watched: false },
+      { name: "Eternals (2021)", watched: false },
+      { name: "Shang-Chi y la Leyenda de los Diez Anillos (2021)", watched: false },
+      { name: "Serie en Disney+: Ojo de Halcón (2021)", watched: false },
+      { name: "Doctor Strange En el multiverso de la locura (2022)", watched: false },
+      { name: "Serie en Disney+: Caballero Luna (2022)", watched: false },
+      { name: "Serie en Disney+: Ms. Marvel (2022)", watched: false },
+      { name: "Thor: Love and Thunder (2022)", watched: false },
+      { name: "Serie en Disney+: She-Hulk (2022)", watched: false },
+      { name: "Especial en Disney+: Werewolf by Night (2022)", watched: false },
+      { name: "Black Panther: Wakanda Forever (2022)", watched: false },
+      { name: "Ant-Man y la Avispa: Quantumania (2023)", watched: false },
+      { name: "Guardianes de la Galaxia Vol 3. (2023)", watched: false },
+      { name: "Serie en Disney+: Invasión Secreta (2023)", watched: false },
+      { name: "Serie en Disney+: Loki 2 (2023)", watched: false },
+      { name: "The Marvels (2023)", watched: false },
+      { name: "Serie en Disney+: ECHO (2024)", watched: false },
+      { name: "Deadpool y Lobezno (2024)", watched: false },
+      { name: "Serie en Disney+: Agatha, ¿quién si no? (2024)", watched: false }
+    ];
+
+    // Filtrar series vistas y no vistas
+    const watchedSeries = series.filter(s => s.watched);
+    const notWatchedSeries = series.filter(s => !s.watched);
+
+    // Crear el gráfico
+    const ctx = document.getElementById('myPieChart').getContext('2d');
+    const myPieChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Vistas', 'No vistas'],
+        datasets: [{
+          data: [watchedSeries.length, notWatchedSeries.length],
+          backgroundColor: ['#4caf50', '#f44336'], // Verde para vistas, rojo para no vistas
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: '#f5f5f5'
+            }
+          }
+        }
+      }
+    });
+
+    // Crear dinámicamente las listas con clases de Bootstrap
+    const watchedList = document.getElementById('watched-list');
+    const notWatchedList = document.getElementById('not-watched-list');
+
+    watchedSeries.forEach(series => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item';
+      listItem.textContent = series.score 
+        ? `${series.name} - Puntuación: ${series.score}/10` 
+        : series.name;
+      watchedList.appendChild(listItem);
+    });
+
+    notWatchedSeries.forEach(series => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item';
+      listItem.textContent = series.name;
+      notWatchedList.appendChild(listItem);
+    });
+  </script>
+</body>
+</html>
