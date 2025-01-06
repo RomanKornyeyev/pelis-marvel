@@ -12,11 +12,11 @@
       background-color: #121212;
       color: #f5f5f5;
     }
-    #chart-container {
+    .chart-container {
       max-width: 400px;
       margin: 0 auto;
     }
-    h1, h2 {
+    h1, h2, h3, h4, h5, h6 {
       text-align: center;
       margin-bottom: 20px;
     }
@@ -43,24 +43,45 @@
   </style>
 </head>
 <body>
+  <!-- Películas / series en orden temporal -->
   <div class="container py-4">
-    <h1>Pelis de Marvel en Orden Cronológico</h1>
-    <div id="chart-container" class="mb-4">
+    <h2>Películas de Marvel en Orden Cronológico</h2>
+    <div class="chart-container" class="mb-4">
       <canvas id="myPieChart"></canvas>
     </div>
 
     <div class="lists">
       <div class="card list-card p-3">
-        <h2>Series Vistas</h2>
+        <h3>Películas Vistas</h3>
         <ul id="watched-list" class="list-group"></ul>
       </div>
       <div class="card list-card p-3">
-        <h2>Series No Vistas</h2>
+        <h3>Películas No Vistas</h3>
         <ul id="not-watched-list" class="list-group"></ul>
       </div>
     </div>
   </div>
 
+  <!-- Películas fuera de la línea temporal / excluidas del universo Marvel -->
+  <div class="container py-4">
+    <h2>Películas fuera de la línea temporal / excluidas del universo Marvel</h2>
+    <div class="chart-container" class="mb-4">
+      <canvas id="moviesPieChart"></canvas>
+    </div>
+    
+    <div class="lists">
+      <div class="card list-card p-3">
+        <h3>Películas Vistas</h3>
+        <ul id="watched-movies-list" class="list-group"></ul>
+      </div>
+      <div class="card list-card p-3">
+        <h3>Películas No Vistas</h3>
+        <ul id="not-watched-movies-list" class="list-group"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT PELIS ORDEN CRONOLÓGICO -->
   <script>
     // JSON con series y puntuaciones
     const series = [
@@ -162,6 +183,78 @@
       listItem.className = 'list-group-item';
       listItem.textContent = series.name;
       notWatchedList.appendChild(listItem);
+    });
+  </script>
+
+  <!-- SCRIPT PELIS FUERA DE LA LÍNEA TEMPORAL -->
+  <script>
+    // JSON con películas fuera de la línea temporal
+    const movies = [
+      { name: "Elektra (2005)", watched: false },
+      { name: "Spider-Man 1 (2002)", watched: false, score: 7 },
+      { name: "Spider-Man 2 (2004)", watched: false, score: 8 },
+      { name: "Spider-Man 3 (2007)", watched: false, score: 6 },
+      { name: "The Amazing Spider-Man (2012)", watched: false, score: 7 },
+      { name: "The Amazing Spider-Man 2 (2014)", watched: false },
+      { name: "Venom (2018)", watched: false },
+      { name: "Venom Habrá Matanza (2021)", watched: false },
+      { name: "Morbius (2022)", watched: false },
+      { name: "X-Men (2000)", watched: false, score: 8 },
+      { name: "X-Men 2 (2003)", watched: false, score: 8 },
+      { name: "X-Men: La batalla final (2006)", watched: false, score: 6 },
+      { name: "X-Men Orígenes: Lobezno (2009)", watched: false, score: 5 },
+      { name: "X-Men: Primera generación (2011)", watched: false },
+      { name: "Lobezno Inmortal (2013)", watched: false },
+      { name: "X-Men: Días del futuro pasado (2014)", watched: false, score: 9 },
+      { name: "X-Men: Apocalipsis (2016)", watched: false },
+      { name: "Logan (2017)", watched: false, score: 9 },
+      { name: "X-Men: Fénix Oscura (2019)", watched: false },
+      { name: "Los Nuevos Mutantes (2020)", watched: false }
+    ];
+
+    // Filtrar películas vistas y no vistas
+    const watchedMovies = movies.filter(movie => movie.watched);
+    const notWatchedMovies = movies.filter(movie => !movie.watched);
+
+    // Crear el gráfico de películas
+    const ctxMovies = document.getElementById('moviesPieChart').getContext('2d');
+    new Chart(ctxMovies, {
+      type: 'pie',
+      data: {
+        labels: ['Vistas', 'No vistas'],
+        datasets: [{
+          data: [watchedMovies.length, notWatchedMovies.length],
+          backgroundColor: ['#4caf50', '#f44336'], // Verde para vistas, rojo para no vistas
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          }
+        }
+      }
+    });
+
+    // Generar dinámicamente las listas
+    const watchedMoviesList = document.getElementById('watched-movies-list');
+    const notWatchedMoviesList = document.getElementById('not-watched-movies-list');
+
+    watchedMovies.forEach(movie => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item list-group-item-dark';
+      listItem.textContent = movie.score 
+        ? `${movie.name} - Puntuación: ${movie.score}/10` 
+        : movie.name;
+      watchedMoviesList.appendChild(listItem);
+    });
+
+    notWatchedMovies.forEach(movie => {
+      const listItem = document.createElement('li');
+      listItem.className = 'list-group-item list-group-item-dark';
+      listItem.textContent = movie.name;
+      notWatchedMoviesList.appendChild(listItem);
     });
   </script>
 </body>
