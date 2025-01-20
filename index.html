@@ -40,6 +40,9 @@
     .list-card {
       flex: 1 1 300px;
     }
+    /* .list-group-item.next-movie {
+      font-size: 1.75rem;
+    } */
   </style>
 </head>
 <body>
@@ -49,6 +52,12 @@
     <h2>En orden cronológico (SAGA VENGADORES)</h2>
     <div class="chart-container" class="mb-4">
       <canvas id="myPieChart"></canvas>
+    </div>
+
+    <!-- Próxima película para ver -->
+    <div class="card list-card p-3 mt-4 justify-content-center">
+      <h3>Próxima película para ver <i class="fa-solid fa-play"></i></h3>
+      <ul id="next-movie-series" class="list-group d-inline-block"></ul>
     </div>
 
     <div class="lists">
@@ -140,6 +149,22 @@
     // Filtrar series vistas y no vistas
     const watchedSeries = series.filter(s => s.watched);
     const notWatchedSeries = series.filter(s => !s.watched);
+
+    // Seleccionar el contenedor de próxima película
+    const nextMovieSeries = document.getElementById('next-movie-series');
+
+    // Mostrar la primera película no vista
+    if (notWatchedSeries.length > 0) {
+      const nextMovieItem = document.createElement('li');
+      nextMovieItem.className = 'list-group-item next-movie text-center h3 py-3';
+      nextMovieItem.textContent = `${notWatchedSeries[0].name}`;
+      nextMovieSeries.appendChild(nextMovieItem);
+    } else {
+      const noMoreMoviesItem = document.createElement('li');
+      noMoreMoviesItem.className = 'list-group-item text-center';
+      noMoreMoviesItem.textContent = "¡Ya has visto todas las películas!";
+      nextMovieSeries.appendChild(noMoreMoviesItem);
+    }
 
     // Crear el gráfico
     const ctx = document.getElementById('myPieChart').getContext('2d');
